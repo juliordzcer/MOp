@@ -1,2 +1,2 @@
 # MOp
-Optimization project for manipulators
+Simulacion de manipuladores para optimizacion de trayectorias. 
