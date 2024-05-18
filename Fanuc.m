@@ -1,6 +1,4 @@
-clc
-clear all
-% close all
+clc; clear all; close all
 
 %Tiempo
 T = 10;
@@ -28,9 +26,9 @@ eo = 100;
 
 % Parametros del organo terminal
 rho = -22;   %Grados
-dhx = -49.8; %mm
+dhx = 49.8; %mm
 dhy = 0;     %mm
-dhz = 504;   %mm
+dhz = 404;   %mm
 
 % Vertices para graficar el cuerpo del robot.
 p0r = [0 0 0 1]';
@@ -44,7 +42,7 @@ p6r = [0 d2+r4+eo bR+d3+d4 1]';
 % Vertices para graficar el cuerpo del robot.
 p0h = [0 0 0 1]';
 p1h = [0 300 0 1]';
-p2h = [0 404 -104*tan(deg2rad(22)) 1]';
+p2h = [0 404 -104*tan(deg2rad(-22)) 1]';
 
 
 % Limites articulares
@@ -85,47 +83,7 @@ th3pmax = 230; %deg/s
 th4pmax = 430; %deg/s
 th5pmax = 430; %deg/s
 th6pmax = 630; %deg/s
-
-% Variables articulares en grados
-th1g=zeros(1,np);
-th2g=zeros(1,np);
-th3g=zeros(1,np);
-th4g=zeros(1,np);
-th5g=zeros(1,np);
-th6g=zeros(1,np);
-time=zeros(1,np);
-
-x0g=zeros(1,np);
-y0g=zeros(1,np);
-z0g=zeros(1,np);
-
-x1g=zeros(1,np);
-y1g=zeros(1,np);
-z1g=zeros(1,np);
-
-x2g=zeros(1,np);
-y2g=zeros(1,np);
-z2g=zeros(1,np);
-
-x3g=zeros(1,np);
-y3g=zeros(1,np);
-z3g=zeros(1,np);
-
-x4g=zeros(1,np);
-y4g=zeros(1,np);
-z4g=zeros(1,np);
-
-x5g=zeros(1,np);
-y5g=zeros(1,np);
-z5g=zeros(1,np);
-
-x6g=zeros(1,np);
-y6g=zeros(1,np);
-z6g=zeros(1,np);
-
-xhg=zeros(1,np);
-yhg=zeros(1,np);
-zhg=zeros(1,np);
+ 
 
 %Parametros del movimiento del robot:
 %solucion del mip del robot:
@@ -137,13 +95,12 @@ e4=-1;
 
 % Matriz del marco 6 al marco de la herramienta
 
-T6h=[cos(deg2rad(rho))   0   -sin(deg2rad(rho))    dhx;
-        0       1       0        dhy;
-     sin(deg2rad(rho))   0    cos(deg2rad(rho))    dhx;
+T6h=[cosd(rho)  0   -sind(rho)    dhx;
+        0       1       0         dhy;
+     sind(rho)  0    cosd(rho)    dhz;
         0       0       0         1 ];    
-    
-Th6=inv(T6h);
 
+Th6=inv(T6h);
 
 % Emplazamiento en el piso:
 
@@ -158,6 +115,7 @@ TEt =[ 0  -1   0  tx ;
        1   0   0  tz ;
        0   0   0  1  ];
    
+  
 T0E=inv(TE0);
 T0t=T0E*TEt;
 
@@ -177,13 +135,13 @@ zinih=100;
 delz=10;
 
 % Orientacion en angulos de Euler
-alphaini=deg2rad(0);
+alphaini=deg2rad(90);
 delalpha=deg2rad(0);
 
-betaini=deg2rad(0);
-delbeta=deg2rad(0);
+betaini=deg2rad(-180);
+delbeta=deg2rad(180);
 
-gammaini=deg2rad(0);
+gammaini=deg2rad(90);
 delgamma=deg2rad(0);
 
 for i=0:np
@@ -222,27 +180,17 @@ for i=0:np
     radius = 70;   % Radio del círculo
 
     % Cálculo de las coordenadas x e y en función del tiempo para seguir un círculo
-    xph1 = x_center + radius * cos(2*pi*funct);
-    yph1 = y_center + radius * sin(2*pi*funct);
-    zph1 = zinih;
-
-%            xph yph zph
-%     TEt =[ 0  -1   0  tx ;    xph1
-%            0   0  -1  ty ;    yph1
-%            1   0   0  tz ;    zph1
-%            0   0   0  1  ];
-    
-    xph = zph1;
-    yph = xph1;
-    zph = yph1;
+    xph = x_center + radius * cos(2*pi*funct);
+    yph = y_center + radius * sin(2*pi*funct);
+    zph = zinih;
 
     % Cálculo de las variaciones en las coordenadas x, y, z y en los ángulos de orientación alpha, beta y gamma
     delx = 0;%(2*pi*radius/T) * (-sin(2*pi*t/T));
     dely = 0;%(2*pi*radius/T) * (cos(2*pi*t/T));
     delz = 0; % No hay variación en la coordenada z
-    delalpha = 0; % No hay variación en el ángulo alpha
-    delbeta = 0;  % No hay variación en el ángulo beta
-    delgamma = 0; % No hay variación en el ángulo gamma
+    delalpha = 0; 
+    delbeta = 0;  
+    delgamma = 0;
 
     
     % Matriz homogenea de la pose deseada del marco h c.r al marco t;
@@ -386,7 +334,6 @@ for i=0:np
     J56 = sin(th1)*sin(th5)*cos(th4)*cos(th2 + th3) + sin(th1)*sin(th2 + th3)*cos(th5) - sin(th4)*sin(th5)*cos(th1);
     J66 = sin(th5)*sin(th2 + th3)*cos(th4) - cos(th5)*cos(th2 + th3);
 
-
     JTA=[J11 J12 J13 J14 J15 J16;
          J21 J22 J23 J24 J25 J26;
          J31 J32 J33 J34 J35 J36];
@@ -414,7 +361,6 @@ for i=0:np
     th5p(i+1)=qp(5);
     th6p(i+1)=qp(6);
      
-
     %PREPARACION DE MATRICES PARA LA ANIMACION:;
     %MATRICES DE TRANSFORMACION HOMOGENEAS
 
@@ -655,7 +601,7 @@ for i=0:np
     rz=[0 0];
     
     % Definicion de vastago
-    ss1=[0 0 -400 1]';
+    ss1=[0 0 -bR 1]';
     xx1=TE0*ss1;
     s1x=[TE0(1,4) xx1(1)];
     s1y=[TE0(2,4) xx1(2)];
@@ -674,21 +620,6 @@ for i=0:np
     ss5=[-100 -100 -400 1]';
     xx5=TE0*ss5;
 
-    b1x=[xx2(1) xx3(1)];
-    b1y=[xx2(2) xx3(2)];
-    b1z=[xx2(3) xx3(3)];
-
-    b2x=[xx3(1) xx5(1)];
-    b2y=[xx3(2) xx5(2)];
-    b2z=[xx3(3) xx5(3)];
-
-    b3x=[xx5(1) xx4(1)];
-    b3y=[xx5(2) xx4(2)];
-    b3z=[xx5(3) xx4(3)];
-
-    b4x=[xx4(1) xx2(1)];
-    b4y=[xx4(2) xx2(2)];
-    b4z=[xx4(3) xx2(3)];
     
     %Graficar Robo
     RJ0 = TE0 * p0r;
@@ -752,207 +683,219 @@ for i=0:np
     e3y=[TE0(2,4) xx8(2)];
     e3z=[TE0(3,4) xx8(3)];
     
-%     figure (1)
-%     clf
-%     hold on
-%     xlabel('Eje x')
-%     ylabel('Eje y')
-%     zlabel('Eje z')
-%     
-%     
-%     plot3(r1x,r1y,r1z,r2x,r2y,r2z,r3x,r3y,r3z,r4x,r4y,r4z,'linewidth',3)
-% 
-%     grid off
-%     % Define las trayectorias de los marcos del robot
-% %     plot3(r1x,r1y,r1z,'k-o',r2x,r2y,r2z,'k-o',r3x,r3y,r3z,'k-o',r4x,r4y,r4z,'k-o',r5x,r5y,r5z,'k-o',r6x,r6y,r6z,'k-o','linewidth',3)
-% 
-% % plot3(r1x,r1z,r1y,r2x,r2z,r2y,r3x,r3z,r3y,r4x_rectangulo,r4z_rectangulo,r4y_constante,'linewidth',3)
-% 
-% 
-%     % Define la base del robot
-%     plot3(b1x, b1y, b1z, 'k', 'LineWidth', 2);
-%     plot3(b2x, b2y, b2z, 'k', 'LineWidth', 2);
-%     plot3(b3x, b3y, b3z, 'k', 'LineWidth', 2);
-%     plot3(b4x, b4y, b4z, 'k', 'LineWidth', 2);
-%     plot3(s1x,s1y,s1z,'k','MarkerSize',5,'linewidth',3)
-% 
-% 
-%     % Define los marcos del robot
-%     plot3(e1x, e1y, e1z, 'k--', 'LineWidth', 1);
-%     plot3(e2x, e2y, e2z, 'k--', 'LineWidth', 1);
-%     plot3(e3x, e3y, e3z, 'k--', 'LineWidth', 1);
-% 
-% 
-%     xlabel('X');
-%     ylabel('Y');
-%     zlabel('Z');
-%     grid on;
-%     axis equal;
-% %     view([.5,.5,.5]);
-%    view([0,1,0]);
-%     plot3(xhg, yhg, zhg, '-', 'Color', [0.5 0.5 0.5], 'LineWidth', 5);
 end
 
-% 
-% 
-% 
-% % Gráfica de la animación del cuerpo del robot
-% plot3(x0g, y0g, z0g, 'r', 'LineWidth', 2); hold on;
-% plot3(x1g, y1g, z1g, 'g', 'LineWidth', 2);
-% plot3(x2g, y2g, z2g, 'b', 'LineWidth', 2);
-% plot3(x3g, y3g, z3g, 'm', 'LineWidth', 2);
-% plot3(x4g, y4g, z4g, 'c', 'LineWidth', 2);
-% plot3(x5g, y5g, z5g, 'y', 'LineWidth', 2);
-% plot3(x6g, y6g, z6g, 'k', 'LineWidth', 2);
-% 
-% % Trayectoria del órgano terminal
-% % plot3(xhg, yhg, zhg, '--', 'Color', [0.5 0.5 0.5], 'LineWidth', 1);
-% 
-% % Configuración de la gráfica
-% xlabel('X');
-% ylabel('Y');
-% zlabel('Z');
-% grid on;
-% axis equal;
-% legend('Link 0', 'Link 1', 'Link 2', 'Link 3', 'Link 4', 'Link 5', 'Link 6', 'End-Effector Trajectory');
-% title('Robot Animation');
-% 
-% 
-% 
-% figure(2)
-% 
-% subplot(3,1,1);
-% hold on;
-% plot(time, x0g, 'LineWidth', 2);
-% plot(time, x1g, 'LineWidth', 2);
-% plot(time, x2g, 'LineWidth', 2);
-% plot(time, x3g, 'LineWidth', 2);
-% plot(time, x4g, 'LineWidth', 2);
-% plot(time, x5g, 'LineWidth', 2);
-% plot(time, x6g, 'LineWidth', 2);
-% plot(time, xhg, 'LineWidth', 2);
-% hold off;
-% legend('x0', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6','xh');
-% 
-% subplot(3,1,2);
-% hold on;
-% plot(time, y0g, 'LineWidth', 2);
-% plot(time, y1g, 'LineWidth', 2);
-% plot(time, y2g, 'LineWidth', 2);
-% plot(time, y3g, 'LineWidth', 2);
-% plot(time, y4g, 'LineWidth', 2);
-% plot(time, y5g, 'LineWidth', 2);
-% plot(time, y6g, 'LineWidth', 2);
-% plot(time, yhg, 'LineWidth', 2);
-% hold off;
-% legend('y0', 'y1', 'y2', 'y3', 'y4', 'y5', 'y6','yh');
-% 
-% subplot(3,1,3);
-% hold on;
-% plot(time, z0g, 'LineWidth', 2);
-% plot(time, z1g, 'LineWidth', 2);
-% plot(time, z2g, 'LineWidth', 2);
-% plot(time, z3g, 'LineWidth', 2);
-% plot(time, z4g, 'LineWidth', 2);
-% plot(time, z5g, 'LineWidth', 2);
-% plot(time, z6g, 'LineWidth', 2);
-% plot(time, zhg, 'LineWidth', 2);
-% hold off;
-% legend('z0', 'z1', 'z2', 'z3', 'z4', 'z5', 'z6','zh');
-% 
-% 
-% figure(3)
-% subplot(231);
-% plot(time,th1g,'c','LineWidth',2)
-% hold on
-% 
-% plot(time,th1max,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerSize',2)
-% plot(time,th1min,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerSize',2)
-% xlabel('Time(seg)')
-% ylabel('Theta1(deg)')
-% grid on
-% 
-% subplot(232);
-% plot(time,th2g,'c','LineWidth',2)
-% hold on
-% plot(time,th2max,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',2)
-% plot(time,th2min,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerSize',2)
-%   
-% xlabel('Time(seg)')
-% ylabel('Theta2(deg)')
-% grid on
-% 
-% subplot(233);
-% plot(time,th3g,'c','LineWidth',2)
-% hold on
-% plot(time,th3max,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',2)
-% plot(time,th3min,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerSize',2)
-% 
-% xlabel('Time(seg)')
-% ylabel('Theta3(deg)')
-% grid on
-% 
-% subplot(234);
-% plot(time,th4g,'c','LineWidth',2)
-% hold on
-% plot(time,th4max,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerFaceColor','r', 'MarkerSize',2)
-% plot(time,th4min,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerSize',2)
-% 
-% xlabel('Time(seg)')
-% ylabel('Theta4(deg)')
-% grid on
-% 
-% subplot(235);
-% plot(time,th5g,'c','LineWidth',2)
-% hold on
-% plot(time,th5max,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',2)
-% plot(time,th5min,'--s','LineWidth',2,'MarkerEdgeColor','r', 'MarkerSize',2)
-%  
-% xlabel('Time(seg)')
-% ylabel('Theta5(deg)')
-% grid on
-% 
-% subplot(236);
-% plot(time,th6g,'c','LineWidth',2)
-% hold on
-% plot(time,th6max,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerFaceColor','r', 'MarkerSize',2)
-% plot(time,th6min,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerSize',2)
-% 
-% xlabel('Time(seg)')
-% ylabel('Theta6(deg)')
-% grid on
-
-% Datos de ejemplo (reemplazar con los datos reales)
 frames = length(x1g); % Suponiendo que x1g está definido
+Li = 100;
+% Calcular los límites de los ejes redondeando a la centena más cercana
+x_min = min([x1g x2g x3g x4g x5g x6g xhg]) - Li;
+x_max = max([x1g x2g x3g x4g x5g x6g xhg]) + Li;
+y_min = min([y1g y2g y3g y4g y5g y6g yhg]) - Li;
+y_max = max([y1g y2g y3g y4g y5g y6g yhg]) + Li;
+z_min = min([z1g z2g z3g z4g z5g z6g zhg]) - 250;
+z_max = max([z1g z2g z3g z4g z5g z6g zhg]) + Li;
+
+x_min = floor(x_min / 100) * 100;
+x_max = ceil(x_max / 100) * 100;
+y_min = floor(y_min / 100) * 100;
+y_max = ceil(y_max / 100) * 100;
+z_min = floor(z_min / 100) * 100;
+z_max = ceil(z_max / 100) * 100;
 
 % Inicializar la figura y el eje 3D
-figure;
-ax = axes('XLim', [min([x1g x2g x3g x4g x5g x6g xhg])-200, max([x1g x2g x3g x4g x5g x6g xhg])+200], ...
-          'YLim', [min([y1g y2g y3g y4g y5g y6g yhg])-200, max([y1g y2g y3g y4g y5g y6g yhg])+200], ...
-          'ZLim', [min([z1g z2g z3g z4g z5g z6g zhg])-200, max([z1g z2g z3g z4g z5g z6g zhg])+200]);
+figure(1);
+ax = axes('XLim', [x_min, x_max], ...
+          'YLim', [y_min, y_max], ...
+          'ZLim', [z_min, z_max]);
 view(3);
 grid on;
 hold on;
 
+% Ajustar los ticks del eje para que vayan de 100 en 100
+ax.XTick = x_min:100:x_max;
+ax.YTick = y_min:100:y_max;
+ax.ZTick = z_min:100:z_max;
+
+% Color amarillo de FANUC en RGB
+darkerFanucYellow = [0 0 0];%[255, 204, 0] / 255 * 0.9; % Ajusta el factor según la oscuridad deseada
+
+% Grafica de la base del robot
+rcil = 100; % Radio del base
+lcil = -400; % Altura del base
+
+[Xc, Yc, Zc] = cylinder(rcil, 50);
+Zc = Zc * lcil; 
+
+% Graficar el cilindro
+plot3(Xc(1,:), Yc(1,:), Zc(1,:), 'k'); hold on; % Base inferior
+plot3(Xc(2,:), Yc(2,:), Zc(2,:), 'k'); % Base superior
+
+% Graficar los lados del cilindro
+for i = 1:size(Xc, 2)
+    plot3([Xc(1,i), Xc(2,i)], [Yc(1,i), Yc(2,i)], [Zc(1,i), Zc(2,i)], 'k');
+end
+
+% Definir los vértices del cuadrado superior
+lado = 2 * rcil; % Longitud del lado del cuadrado
+Xcuadrado = [-lado/2, lado/2, lado/2, -lado/2, -lado/2];
+Ycuadrado = [-lado/2, -lado/2, lado/2, lado/2, -lado/2];
+Zcuadrado = lcil * ones(size(Xcuadrado));
+
+% Rellenar el cuadrado superior
+fill3(Xcuadrado, Ycuadrado, Zcuadrado, 'k', 'FaceAlpha', 0.5);
+fill3(Xcuadrado, Ycuadrado, ones(size(Xcuadrado)), 'k', 'FaceAlpha', 0.5);
+
+% Grafica del primer eslabon de la base del robot
+plot3(s1x, s1y, s1z, 'k', 'MarkerSize', 5, 'linewidth', 3, 'Color', darkerFanucYellow)
+
 % Crear las líneas iniciales para los eslabones
 lines = gobjects(7, 1);
 for i = 1:7
-    lines(i) = plot3(nan, nan, nan, 'LineWidth', 2);
+    lines(i) = plot3(nan, nan, nan, 'LineWidth', 2, 'Color', darkerFanucYellow);
 end
 
 % Crear las líneas iniciales para la trayectoria de las articulaciones
 trajLines = gobjects(7, 1);
+AzulS = [0.4, 0.6, 0.8]; % Un azul más suave en formato RGB
 for i = 1:7
-    trajLines(i) = plot3(nan, nan, nan, 'LineWidth', 2);
+    trajLines(i) = plot3(nan, nan, nan, 'LineWidth', 2, 'Color', AzulS);
+end
+
+% Crear los círculos iniciales para las articulaciones
+jointCircles = gobjects(7, 1);
+for i = 1:7
+    jointCircles(i) = drawCircle(nan, nan, nan, 10);
 end
 
 % Crear la animación
 for frame = 1:frames
     update(lines, frame, x1g, y1g, z1g, x2g, y2g, z2g, x3g, y3g, z3g, x4g, y4g, z4g, x5g, y5g, z5g, x6g, y6g, z6g, xhg, yhg, zhg);
     update_trajectory(trajLines, frame, x1g, y1g, z1g, x2g, y2g, z2g, x3g, y3g, z3g, x4g, y4g, z4g, x5g, y5g, z5g, x6g, y6g, z6g, xhg, yhg, zhg);
+
+    % Actualizar las posiciones de los círculos en las articulaciones
+    jointCoords = [x1g(frame), y1g(frame), z1g(frame);
+                   x2g(frame), y2g(frame), z2g(frame);
+                   x3g(frame), y3g(frame), z3g(frame);
+                   x4g(frame), y4g(frame), z4g(frame);
+                   x5g(frame), y5g(frame), z5g(frame);
+                   x6g(frame), y6g(frame), z6g(frame);
+                   xhg(frame), yhg(frame), zhg(frame)];
+    for i = 1:7
+        delete(jointCircles(i)); % Eliminar el círculo anterior
+        jointCircles(i) = drawCircle(jointCoords(i, 1), jointCoords(i, 2), jointCoords(i, 3), 10);
+    end
+
     drawnow;
     pause(0.05); % Ajustar el intervalo de tiempo si es necesario
 end
+
+
+figure(2)
+
+subplot(3,1,1);
+hold on;
+plot(time, x0g, 'LineWidth', 2);
+plot(time, x1g, 'LineWidth', 2);
+plot(time, x2g, 'LineWidth', 2);
+plot(time, x3g, 'LineWidth', 2);
+plot(time, x4g, 'LineWidth', 2);
+plot(time, x5g, 'LineWidth', 2);
+plot(time, x6g, 'LineWidth', 2);
+plot(time, xhg, 'LineWidth', 2);
+hold off;
+legend('x0', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6','xh');
+
+subplot(3,1,2);
+hold on;
+plot(time, y0g, 'LineWidth', 2);
+plot(time, y1g, 'LineWidth', 2);
+plot(time, y2g, 'LineWidth', 2);
+plot(time, y3g, 'LineWidth', 2);
+plot(time, y4g, 'LineWidth', 2);
+plot(time, y5g, 'LineWidth', 2);
+plot(time, y6g, 'LineWidth', 2);
+plot(time, yhg, 'LineWidth', 2);
+hold off;
+legend('y0', 'y1', 'y2', 'y3', 'y4', 'y5', 'y6','yh');
+
+subplot(3,1,3);
+hold on;
+plot(time, z0g, 'LineWidth', 2);
+plot(time, z1g, 'LineWidth', 2);
+plot(time, z2g, 'LineWidth', 2);
+plot(time, z3g, 'LineWidth', 2);
+plot(time, z4g, 'LineWidth', 2);
+plot(time, z5g, 'LineWidth', 2);
+plot(time, z6g, 'LineWidth', 2);
+plot(time, zhg, 'LineWidth', 2);
+hold off;
+legend('z0', 'z1', 'z2', 'z3', 'z4', 'z5', 'z6','zh');
+
+
+figure(3)
+subplot(231);
+plot(time,th1g,'c','LineWidth',2)
+hold on
+
+plot(time,th1max,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerSize',2)
+plot(time,th1min,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerSize',2)
+xlabel('Time(seg)')
+ylabel('Theta1(deg)')
+grid on
+
+subplot(232);
+plot(time,th2g,'c','LineWidth',2)
+hold on
+plot(time,th2max,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',2)
+plot(time,th2min,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerSize',2)
+  
+xlabel('Time(seg)')
+ylabel('Theta2(deg)')
+grid on
+
+subplot(233);
+plot(time,th3g,'c','LineWidth',2)
+hold on
+plot(time,th3max,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',2)
+plot(time,th3min,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerSize',2)
+
+xlabel('Time(seg)')
+ylabel('Theta3(deg)')
+grid on
+
+subplot(234);
+plot(time,th4g,'c','LineWidth',2)
+hold on
+plot(time,th4max,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerFaceColor','r', 'MarkerSize',2)
+plot(time,th4min,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerSize',2)
+
+xlabel('Time(seg)')
+ylabel('Theta4(deg)')
+grid on
+
+subplot(235);
+plot(time,th5g,'c','LineWidth',2)
+hold on
+plot(time,th5max,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',2)
+plot(time,th5min,'--s','LineWidth',2,'MarkerEdgeColor','r', 'MarkerSize',2)
+ 
+xlabel('Time(seg)')
+ylabel('Theta5(deg)')
+grid on
+
+subplot(236);
+plot(time,th6g,'c','LineWidth',2)
+hold on
+plot(time,th6max,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerFaceColor','r', 'MarkerSize',2)
+plot(time,th6min,'--s','LineWidth',2,'MarkerEdgeColor','r','MarkerSize',2)
+
+xlabel('Time(seg)')
+ylabel('Theta6(deg)')
+grid on
+
+
+
+
 
 % Función para actualizar las líneas de los eslabones
 function update(lines, frame, x1g, y1g, z1g, x2g, y2g, z2g, x3g, y3g, z3g, x4g, y4g, z4g, x5g, y5g, z5g, x6g, y6g, z6g, xhg, yhg, zhg)
@@ -985,3 +928,11 @@ function update_trajectory(trajLines, frame, x1g, y1g, z1g, x2g, y2g, z2g, x3g, 
 end
 
 
+% Función para dibujar un círculo
+function h = drawCircle(x, y, z, radius)
+    theta = linspace(0, 2*pi, 50);
+    X = radius * cos(theta) + x;
+    Y = radius * sin(theta) + y;
+    Z = z * ones(size(X));
+    h = fill3(X, Y, Z, 'k', 'EdgeColor', 'none');
+end
