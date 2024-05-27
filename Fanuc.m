@@ -5,99 +5,42 @@ T = 10;
 np = 50;
 
 % Localizacion de la estacion de trabajo
-ex = 0;%mm
-ey = 0;%mm
-ez = 0;%mm
+ex = 0; ey = 0; ez = 0;
 
 %Parametros de emplazamiento de tarea
-tx = 804.5;%mm
-ty = 499.9;%mm
-tz =  663.1;%mm
-phi = -9.9; %grados
+tx = 804.5; ty = 499.9; tz = 663.1;%mm
 
 % Parametros del robot
-d2 = 150; %mm
-d3 = 600; %mm
-d4 = 200; %mm
-r4 = 640; %mm
+d2 = 150; d3 = 600; d4 = 200; r4 = 640;
 
 bR = 450;
 eo = 100;
 
 % Parametros del organo terminal
-rho = -22;   %Grados
-dhx = 49.8; %mm
-dhy = 0;     %mm
-dhz = 404;   %mm
-
-% Vertices para graficar el cuerpo del robot.
-p0r = [0 0 0 1]';
-p1r = [0 0 bR 1]';
-p2r = [0 d2 bR 1]';
-p3r = [0 d2 bR+d3 1]';
-p4r = [0 d2 bR+d3+d4 1]';
-p5r = [0 d2+r4 bR+d3+d4 1]';
-p6r = [0 d2+r4+eo bR+d3+d4 1]';
-
-% Vertices para graficar el cuerpo del robot.
-p0h = [0 0 0 1]';
-p1h = [0 300 0 1]';
-p2h = [0 404 -104*tan(deg2rad(-22)) 1]';
-
+rho = -22; dhx = 49.8; dhy = 0; dhz = 404;
 
 % Limites articulares
-th1min =-170; %deg
-th1max = 170; %deg
-th1mean=((th1max+th1min)/2);
-delth1mx =abs(th1max-th1mean);
-
-th2min =-90;  %deg
-th2max = 160; %deg
-th2mean=((th2max+th2min)/2);
-delth2mx=abs(th2max-th2mean);
-
-th3min =-180; %deg
-th3max = 267; %deg
-th3mean=((th3max+th3min)/2);
-delth3mx=abs(th3max-th3mean);
-
-th4min =-190; %deg
-th4max = 190; %deg
-th4mean=((th4max+th4min)/2);
-delth4mx=abs(th4max-th4mean);
-
-th5min =-270; %deg
-th5max = 270; %deg
-th5mean=((th5max+th5min)/2);
-delth5mx=abs(th5max-th5mean);
-
-th6min =-360; %deg
-th6max = 360; %deg
-th6mean=((th6max+th6min)/2);
-delth6mx=abs(th6max-th6mean);
+th1min =-170; th1max = 170;
+th2min =-90;  th2max = 160; 
+th3min =-180; th3max = 267;
+th4min =-190; th4max = 190;
+th5min =-270; th5max = 270;
+th6min =-360; th6max = 360;
 
 % Velocidades maximas
-th1pmax = 230; %deg/s
-th2pmax = 225; %deg/s
-th3pmax = 230; %deg/s
-th4pmax = 430; %deg/s
-th5pmax = 430; %deg/s
-th6pmax = 630; %deg/s
- 
+th1pmax = 230; th2pmax = 225; th3pmax = 230;
+th4pmax = 430; th5pmax = 430; th6pmax = 630;
 
 %Parametros del movimiento del robot:
 %solucion del mip del robot:
-
 %Epsilon
-e1=1;
-e2=1;
-e4=-1;
+% e1=1;  e2=1;  e4=-1;
 
 % Matriz del marco 6 al marco de la herramienta
 
-T6h=[cosd(rho)  0   -sind(rho)    dhx;
+T6h=[sind(rho)  0   -sind(rho)    dhx;
         0       1       0         dhy;
-     sind(rho)  0    cosd(rho)    dhz;
+     cosd(rho)  0    cosd(rho)    dhz;
         0       0       0         1 ];    
 
 Th6=inv(T6h);
@@ -132,17 +75,18 @@ R0T=[T0t(1,1) T0t(1,2) T0t(1,3)
 % dely=150;
 
 zinih=100;
-delz=10;
+delz=0;
 
 % Orientacion en angulos de Euler
-alphaini=deg2rad(90);
+alphaini=deg2rad(0);
 delalpha=deg2rad(0);
 
-betaini=deg2rad(-180);
-delbeta=deg2rad(180);
+betaini=deg2rad(0);
+delbeta=deg2rad(0);
 
-gammaini=deg2rad(90);
+gammaini=deg2rad(0);
 delgamma=deg2rad(0);
+
 
 for i=0:np
     t=T*i/np;
@@ -266,35 +210,125 @@ for i=0:np
     von_0= vph_0-difvnh_0;
     Spun_0=[von_0(1) von_0(2) von_0(3) wnn_0(1) wnn_0(2) wnn_0(3)]';
 
-    % Calculo de las variables articulares:
-    th1 = atan2(e1 * PY,e1 * PX);
+    % % Calculo de las variables articulares:
+    % th1 = atan2(e1 * PY,e1 * PX);
+    % 
+    % z1 = -d2 + PX * cos(th1) + PY * sin(th1);
+    % b1 = 2 * (-(d4 * PZ) - r4 * z1);
+    % b2 = 2 * (PZ *r4 - d4 * z1);
+    % b3 = d3^2 - d4^2 - PZ^2 - r4^2 - z1^2;
+    % 
+    % SQ = (b1 * b3 + b2 * sqrt(b1^2 + b2^2 - b3^2)*e2)/(b1^2 + b2^2);
+    % CQ = (b2 * b3 - b1 * sqrt(b1^2 + b2^2 - b3^2)*e2)/(b1^2 + b2^2);
+    % 
+    % th2 = atan2(-((-PZ-r4 * CQ + d4 * SQ)/(d3)),(z1 - d4 * CQ - r4 * SQ)/(d3));
+    % 
+    % th3 = atan2(SQ,CQ)-th2;
+    % 
+    % X = -(AY * cos(th1)) + AX * sin(th1);
+    % Y = -(AX * cos(th1) * cos(th2 + th3)) - AY * cos(th2 + th3) * sin(th1) - AZ * sin(th2 + th3);
+    % 
+    % th4 = atan2(-X * e4,Y * e4);
+    % 
+    % Y12 = -(cos(th4) * (AX * cos(th1) * cos(th2 + th3) + AY * cos(th2 + th3) * sin(th1) + AZ * sin(th2 + th3))) - (- (AY * cos(th1) + AX * sin(th1))*sin(th4));
+    % Y1 = - AZ*cos(th2+th3) - AX*cos(th1)*sin(th2+th3)-AY*sin(th1)*sin(th2 + th3);
+    % 
+    % th5 = atan2(-Y12,-Y1);
+    % 
+    % Y22 = - (cos(th4)*(-SY * cos(th1) + SX * sin(th1))) + (SX*cos(th1)*cos(th2+th3) + SY*cos(th2+th3)*sin(th1)+SZ*sin(th2+th3))*sin(th4);
+    % Y21 = - (cos(th4)*(-NY * cos(th1) + NX * sin(th1))) + (NX*cos(th1)*cos(th2+th3) + NY*cos(th2+th3)*sin(th1)+NZ*sin(th2+th3))*sin(th4);
+    % 
+    % th6 = atan2(-Y22,-Y21);
 
-    z1 = -d2 + PX * cos(th1) + PY * sin(th1);
-    b1 = 2 * (-(d4 * PZ) - r4 * z1);
-    b2 = 2 * (PZ *r4 - d4 * z1);
-    b3 = d3^2 - d4^2 - PZ^2 - r4^2 - z1^2;
 
-    SQ = (b1 * b3 + b2 * sqrt(b1^2 + b2^2 - b3^2)*e2)/(b1^2 + b2^2);
-    CQ = (b2 * b3 - b1 * sqrt(b1^2 + b2^2 - b3^2)*e2)/(b1^2 + b2^2);
+    % Inverse Geometric Model for frame 6
+    
+    % Parámetros geométricos
+    % j       ant     sigma   mu      gamma   b       alpha   d       theta   r       
+    % 1       0       0       1       0       0       0       0       th1     0       
+    % 2       1       0       1       0       0       pi/2    d2      th2     0       
+    % 3       2       0       1       0       0       0       d3      th3     0       
+    % 4       3       0       1       0       0       pi/2    d4      th4     r4      
+    % 5       4       0       1       0       0       -pi/2   0       th5     0       
+    % 6       5       0       1       0       0       pi/2    0       th6     0       
+    
+    S1 = SX;
+    S2 = SY;
+    S3 = SZ;
+    
+    N1 = NX;
+    N2 = NY;
+    N3 = NZ;
+    
+    A1 = AX;
+    A2 = AY;
+    A3 = AZ;
 
-    th2 = atan2(-((-PZ-r4 * CQ + d4 * SQ)/(d3)),(z1 - d4 * CQ - r4 * SQ)/(d3));
+    P1 = PX;
+    P2 = PY;
+    P3 = PZ;
 
-    th3 = atan2(SQ,CQ)-th2;
+    % Ecuaciones:
+    % Solving type 2
+    % X*sin(th1) + Y*cos(th1) = Z
 
-    X = -(AY * cos(th1)) + AX * sin(th1);
-    Y = -(AX * cos(th1) * cos(th2 + th3)) - AY * cos(th2 + th3) * sin(th1) - AZ * sin(th2 + th3);
+    YPSth1 = 0 ;%[1, 0];
 
-    th4 = atan2(-X * e4,Y * e4);
+    th1 = pi*YPSth1 + atan2(-P2, -P1);
+    
+    % Solving type 6, 7
+    % V*cos(th2) + W*sin(th2) = X*cos(th3) + Y*sin(th3) + Z1
+    % eps*(V*sin(th2) - W*cos(th2)) = X*sin(th3) - Y*cos(th3) + Z2
+    Vth3 = -P1*cos(th1) - P2*sin(th1) + d2;
+    B1th3 = 2*d3*r4;
+    B2th3 = 2*d3*d4;
+    B3th3 = P3^2 + Vth3^2 - d3^2 - d4^2 - r4^2;
+    Bth3 = B1th3^2 + B2th3^2;
+    Dth3 = -B3th3^2 + Bth3;
 
-    Y12 = -(cos(th4) * (AX * cos(th1) * cos(th2 + th3) + AY * cos(th2 + th3) * sin(th1) + AZ * sin(th2 + th3))) - (- (AY * cos(th1) + AX * sin(th1))*sin(th4));
-    Y1 = - AZ*cos(th2+th3) - AX*cos(th1)*sin(th2+th3)-AY*sin(th1)*sin(th2 + th3);
+    YPSth3 = 1; %[1, -1];
 
-    th5 = atan2(-Y12,-Y1);
+    Sth3 = (B1th3*B3th3 + B2th3*sqrt(Dth3)*YPSth3)/Bth3;
+    Cth3 = (-B1th3*sqrt(Dth3)*YPSth3 + B2th3*B3th3)/Bth3;
+    th3 = atan2(Sth3, Cth3);
+    Zi1th2 = -d3 - d4*cos(th3) - r4*sin(th3);
+    Zi2th2 = -d4*sin(th3) + r4*cos(th3);
+    
+    % X1*sin(th2) + Y1*cos(th2) = Z1
+    % X2*sin(th2) + Y2*cos(th2) = Z2
+    Dth2 = P3^2 + Vth3^2;
+    Cth2 = (-P3*Zi2th2 + Vth3*Zi1th2)/Dth2;
+    Sth2 = (-P3*Zi1th2 - Vth3*Zi2th2)/Dth2;
+    th2 = atan2(Sth2, Cth2);
+    
+    % Solving type 2
+    % X*sin(th5) + Y*cos(th5) = Z
+    Zth5 = A1*sin(th2 + th3)*cos(th1) + A2*sin(th1)*sin(th2 + th3) - A3*cos(th2 + th3);
 
-    Y22 = - (cos(th4)*(-SY * cos(th1) + SX * sin(th1))) + (SX*cos(th1)*cos(th2+th3) + SY*cos(th2+th3)*sin(th1)+SZ*sin(th2+th3))*sin(th4);
-    Y21 = - (cos(th4)*(-NY * cos(th1) + NX * sin(th1))) + (NX*cos(th1)*cos(th2+th3) + NY*cos(th2+th3)*sin(th1)+NZ*sin(th2+th3))*sin(th4);
 
-    th6 = atan2(-Y22,-Y21);
+    YPSth5 = -1; %[1, -1];
+    
+    
+    th5 = atan2(YPSth5*sqrt(-Zth5^2 + 1), Zth5);
+    
+    % Solving type 3
+    % X1*sin(th4) + Y1*cos(th4) = Z1
+    % X2*sin(th4) + Y2*cos(th4) = Z2
+    Y1th4 = sin(th5);
+    Z1th4 = A1*cos(th1)*cos(th2 + th3) + A2*sin(th1)*cos(th2 + th3) + A3*sin(th2 + th3);
+    Z2th4 = A1*sin(th1) - A2*cos(th1);
+    th4 = atan2((Z2th4/Y1th4), (Z1th4/Y1th4));
+
+
+    % Solving type 3
+    % X1*sin(th6) + Y1*cos(th6) = Z1
+    % X2*sin(th6) + Y2*cos(th6) = Z2
+    Z1th6 = S1*sin(th2 + th3)*cos(th1) + S2*sin(th1)*sin(th2 + th3) - S3*cos(th2 + th3);
+    Z2th6 = N1*sin(th2 + th3)*cos(th1) + N2*sin(th1)*sin(th2 + th3) - N3*cos(th2 + th3);
+    th6 = atan2(Z2th6/Y1th4, -Z1th6/Y1th4);
+
+
+
 
     % Matriz jacobiana
     J11 = (-d2 - d3*cos(th2) - d4*cos(th2 + th3) - r4*sin(th2 + th3))*sin(th1);
@@ -620,48 +654,6 @@ for i=0:np
     ss5=[-100 -100 -400 1]';
     xx5=TE0*ss5;
 
-    
-    %Graficar Robo
-    RJ0 = TE0 * p0r;
-    RJ1 = TE1 * p1r;
-    RJ2 = TE2 * p2r;
-    RJ3 = TE3 * p3r;
-    RJ4 = TE4 * p4r;
-    RJ5 = TE5 * p5r;
-    RJ6 = TE6 * p6r;
-    
-    %Grafica de Herramienta
-    HA0 = TE6 * p0h;
-    HA1 = TE6 * p1h;
-    HA2 = TE6 * p2h;
-    
-    RJ0x = [RJ0(1) RJ1(1)];
-    RJ0y = [RJ0(2) RJ1(2)];
-    RJ0z = [RJ0(3) RJ1(3)];
-    
-    RJ1x = [RJ1(1) RJ2(1)];
-    RJ1y = [RJ1(2) RJ2(2)];
-    RJ1z = [RJ1(3) RJ2(3)];
-    
-    RJ2x = [RJ2(1) RJ3(1)];
-    RJ2y = [RJ2(2) RJ3(2)];
-    RJ2z = [RJ2(3) RJ3(3)];
-    
-    RJ3x = [RJ3(1) RJ4(1)];
-    RJ3y = [RJ3(2) RJ4(2)];
-    RJ3z = [RJ3(3) RJ4(3)];
-    
-    RJ4x = [RJ4(1) RJ5(1)];
-    RJ4y = [RJ4(2) RJ5(2)];
-    RJ4z = [RJ4(3) RJ5(3)];
-    
-    RJ5x = [RJ5(1) RJ6(1)];
-    RJ5y = [RJ5(2) RJ6(2)];
-    RJ5z = [RJ5(3) RJ6(3)];
-    
-    RJ6x = [RJ6(1) x6];
-    RJ6y = [RJ6(2) y6];
-    RJ6z = [RJ6(3) z6];
     
     % Definicion del marco 0
     ss6=[300 0 0 1]';
