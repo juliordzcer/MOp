@@ -5,7 +5,7 @@ T = 10;
 np = 50;
 
 % Localizacion de la estacion de trabajo
-ex = 0; ey = 0; ez = 0;
+ex = 0; ey = 0; ez = 450;
 
 %Parametros de emplazamiento de tarea
 tx = 804.5; ty = 499.9; tz = 663.1;%mm
@@ -38,9 +38,9 @@ th4pmax = 430; th5pmax = 430; th6pmax = 630;
 
 % Matriz del marco 6 al marco de la herramienta
 
-T6h=[sind(rho)  0   -sind(rho)    dhx;
+T6h=[cosd(rho)  0   -sind(rho)    dhx;
         0       1       0         dhy;
-     cosd(rho)  0    cosd(rho)    dhz;
+     sind(rho)  0    cosd(rho)    dhz;
         0       0       0         1 ];    
 
 Th6=inv(T6h);
@@ -78,10 +78,10 @@ zinih=100;
 delz=0;
 
 % Orientacion en angulos de Euler
-alphaini=deg2rad(0);
+alphaini=deg2rad(180);
 delalpha=deg2rad(0);
 
-betaini=deg2rad(0);
+betaini=deg2rad(180);
 delbeta=deg2rad(0);
 
 gammaini=deg2rad(0);
@@ -117,8 +117,8 @@ for i=0:np
 %     zph=zinih+delz*funct;
     
 %     % Coordenadas del centro del círculo
-    x_center = 100; % Coordenada x del centro del círculo
-    y_center = 1000;  % Coordenada y del centro del círculo
+    x_center = 800; % Coordenada x del centro del círculo
+    y_center = 300;  % Coordenada y del centro del círculo
 
     % Radio del círculo
     radius = 70;   % Radio del círculo
@@ -162,7 +162,7 @@ for i=0:np
     % Matriz de la pose deseada del marco h c.r al marco 0 
     T0hd=T0t*Tthd;
     % Matriz de la pose deseada del marco 6 c.r al marco 0:
-    T06d=T0hd*Th6; 
+    T06d=Tthd;%T0hd*Th6; 
 
     %MATRIZ SNAP DEFINICION DE LOS ELEMENTOS DE LA MATRIZ SNAP PARA SU USO EN EL MIP
     SX=T06d(1,1);
@@ -242,7 +242,7 @@ for i=0:np
 
 
     % Inverse Geometric Model for frame 6
-    
+
     % Parámetros geométricos
     % j       ant     sigma   mu      gamma   b       alpha   d       theta   r       
     % 1       0       0       1       0       0       0       0       th1     0       
@@ -251,15 +251,15 @@ for i=0:np
     % 4       3       0       1       0       0       pi/2    d4      th4     r4      
     % 5       4       0       1       0       0       -pi/2   0       th5     0       
     % 6       5       0       1       0       0       pi/2    0       th6     0       
-    
+
     S1 = SX;
     S2 = SY;
     S3 = SZ;
-    
+
     N1 = NX;
     N2 = NY;
     N3 = NZ;
-    
+
     A1 = AX;
     A2 = AY;
     A3 = AZ;
@@ -272,10 +272,10 @@ for i=0:np
     % Solving type 2
     % X*sin(th1) + Y*cos(th1) = Z
 
-    YPSth1 = 0 ;%[1, 0];
+    YPSth1 = 1 ;%[1, 0];
 
     th1 = pi*YPSth1 + atan2(-P2, -P1);
-    
+
     % Solving type 6, 7
     % V*cos(th2) + W*sin(th2) = X*cos(th3) + Y*sin(th3) + Z1
     % eps*(V*sin(th2) - W*cos(th2)) = X*sin(th3) - Y*cos(th3) + Z2
@@ -286,31 +286,31 @@ for i=0:np
     Bth3 = B1th3^2 + B2th3^2;
     Dth3 = -B3th3^2 + Bth3;
 
-    YPSth3 = 1; %[1, -1];
+    YPSth3 = -1; %[1, -1];
 
     Sth3 = (B1th3*B3th3 + B2th3*sqrt(Dth3)*YPSth3)/Bth3;
     Cth3 = (-B1th3*sqrt(Dth3)*YPSth3 + B2th3*B3th3)/Bth3;
     th3 = atan2(Sth3, Cth3);
     Zi1th2 = -d3 - d4*cos(th3) - r4*sin(th3);
     Zi2th2 = -d4*sin(th3) + r4*cos(th3);
-    
+
     % X1*sin(th2) + Y1*cos(th2) = Z1
     % X2*sin(th2) + Y2*cos(th2) = Z2
     Dth2 = P3^2 + Vth3^2;
     Cth2 = (-P3*Zi2th2 + Vth3*Zi1th2)/Dth2;
     Sth2 = (-P3*Zi1th2 - Vth3*Zi2th2)/Dth2;
     th2 = atan2(Sth2, Cth2);
-    
+
     % Solving type 2
     % X*sin(th5) + Y*cos(th5) = Z
     Zth5 = A1*sin(th2 + th3)*cos(th1) + A2*sin(th1)*sin(th2 + th3) - A3*cos(th2 + th3);
 
 
     YPSth5 = -1; %[1, -1];
-    
-    
+
+
     th5 = atan2(YPSth5*sqrt(-Zth5^2 + 1), Zth5);
-    
+
     % Solving type 3
     % X1*sin(th4) + Y1*cos(th4) = Z1
     % X2*sin(th4) + Y2*cos(th4) = Z2
@@ -326,9 +326,6 @@ for i=0:np
     Z1th6 = S1*sin(th2 + th3)*cos(th1) + S2*sin(th1)*sin(th2 + th3) - S3*cos(th2 + th3);
     Z2th6 = N1*sin(th2 + th3)*cos(th1) + N2*sin(th1)*sin(th2 + th3) - N3*cos(th2 + th3);
     th6 = atan2(Z2th6/Y1th4, -Z1th6/Y1th4);
-
-
-
 
     % Matriz jacobiana
     J11 = (-d2 - d3*cos(th2) - d4*cos(th2 + th3) - r4*sin(th2 + th3))*sin(th1);
@@ -367,6 +364,15 @@ for i=0:np
     J46 = sin(th1)*sin(th4)*sin(th5) + sin(th5)*cos(th1)*cos(th4)*cos(th2 + th3) + sin(th2 + th3)*cos(th1)*cos(th5);
     J56 = sin(th1)*sin(th5)*cos(th4)*cos(th2 + th3) + sin(th1)*sin(th2 + th3)*cos(th5) - sin(th4)*sin(th5)*cos(th1);
     J66 = sin(th5)*sin(th2 + th3)*cos(th4) - cos(th5)*cos(th2 + th3);
+    L11 = 0;
+    L21 = 0;
+    L31 = 0;
+    L12 = 0;
+    L22 = 0;
+    L32 = 0;
+    L13 = 0;
+    L23 = 0;
+    L33 = 0;
 
     JTA=[J11 J12 J13 J14 J15 J16;
          J21 J22 J23 J24 J25 J26;
@@ -713,7 +719,7 @@ darkerFanucYellow = [0 0 0];%[255, 204, 0] / 255 * 0.9; % Ajusta el factor segú
 
 % Grafica de la base del robot
 rcil = 100; % Radio del base
-lcil = -400; % Altura del base
+lcil = 450; % Altura del base
 
 [Xc, Yc, Zc] = cylinder(rcil, 50);
 Zc = Zc * lcil; 
